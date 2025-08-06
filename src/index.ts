@@ -1,2 +1,2 @@
 export { PrismaMigrator } from './migrator';
-export { MigrationResult, FailedMigration } from './types';
+export { MigrationResult, MigrationOptions, FailedMigration } from './types';

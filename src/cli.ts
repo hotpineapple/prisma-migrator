@@ -3,7 +3,23 @@
 import { PrismaMigrator } from './migrator';
 import { promptConfirmation } from './utils';
 
+function parseArgs(): { migrationsDir?: string } {
+  const args = process.argv.slice(2);
+  const options: { migrationsDir?: string } = {};
+  
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--migrations-dir' && args[i + 1]) {
+      options.migrationsDir = args[i + 1];
+      i++; // Skip the next argument as it's the value
+    }
+  }
+  
+  return options;
+}
+
 async function main() {
+  const options = parseArgs();
+  
   const confirmed = await promptConfirmation('This will run database migrations with automatic rollback on failure.');
   
   if (!confirmed) {
@@ -11,7 +27,7 @@ async function main() {
     process.exit(1);
   }
 
-  const migrator = new PrismaMigrator();
+  const migrator = new PrismaMigrator(options);
   
   try {
     const result = await migrator.migrate();

@@ -38,9 +38,10 @@ export async function readFile(filePath: string): Promise<string> {
   return await fs.readFile(filePath, 'utf-8');
 }
 
-export async function findMigrationsDir(): Promise<string> {
-  const possibleLocations = [
+export async function findMigrationsDir(customDir?: string): Promise<string> {
+  const possibleLocations = customDir ? [customDir] : [
     './prisma/migrations',
+    './migrations'
   ];
 
   for (const location of possibleLocations) {
@@ -49,7 +50,7 @@ export async function findMigrationsDir(): Promise<string> {
     }
   }
 
-  throw new Error('Could not find Prisma migrations directory.');
+  throw new Error(`Could not find Prisma migrations directory. Searched: ${possibleLocations.join(', ')}`);
 }
 
 export async function executeSql(sql: string, prisma: PrismaClient, logger: Logger): Promise<void> {

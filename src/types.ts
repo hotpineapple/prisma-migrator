@@ -5,6 +5,11 @@ export interface MigrationResult {
   rollbackError?: string;
 }
 
+export interface MigrationOptions {
+  migrationsDir?: string;
+  verbose?: boolean;
+}
+
 export interface FailedMigration {
   id: string;
   checksum: string;

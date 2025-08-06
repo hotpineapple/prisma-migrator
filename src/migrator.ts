@@ -1,20 +1,22 @@
 import { execSync } from 'child_process';
 import { PrismaClient } from '@prisma/client';
-import { MigrationResult, FailedMigration } from './types';
+import { MigrationResult, MigrationOptions, FailedMigration } from './types';
 import { Logger, readFile, findMigrationsDir, executeSql, getRollbackFile } from './utils';
 
 export class PrismaMigrator {
   private logger: Logger;
   private migrationsDir!: string;
   private prisma: PrismaClient;
+  private options: MigrationOptions;
 
-  constructor() {
+  constructor(options: MigrationOptions = {}) {
     this.logger = new Logger();
     this.prisma = new PrismaClient();
+    this.options = options;
   }
 
   async initialize(): Promise<void> {
-    this.migrationsDir = await findMigrationsDir();
+    this.migrationsDir = await findMigrationsDir(this.options.migrationsDir);
     this.logger.debug(`Using migrations directory: ${this.migrationsDir}`);
   }
 
