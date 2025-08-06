@@ -1,6 +1,6 @@
 {
   "name": "prisma-migrator",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A Node.js library that extends Prisma ORM's migration with automatic rollback capabilities when migrations fail",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
