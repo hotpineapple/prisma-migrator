@@ -1,0 +1,58 @@
+{
+  "author": "Jihye Choi <brandnew.cheese@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hotpineapple/prisma-migrator.git"
+  },
+  "name": "prisma-migrator",
+  "version": "1.0.0",
+  "description": "A Node.js library that extends Prisma ORM's migration with automatic rollback capabilities when migrations fail",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "prisma-migrator": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "prisma",
+    "migration",
+    "rollback",
+    "database",
+    "cli",
+    "orm",
+    "sql",
+    "database-migration",
+    "prisma-migration",
+    "auto-rollback"
+  ],
+  "author": "Your Name <your.email@example.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/prisma-migrator.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/prisma-migrator/issues"
+  },
+  "homepage": "https://github.com/yourusername/prisma-migrator#readme",
+  "peerDependencies": {
+    "prisma": "^5.0.0",
+    "@prisma/client": "^5.0.0"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "files": [
+    "dist/**/*",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
