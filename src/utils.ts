@@ -73,7 +73,7 @@ export async function getRollbackFile(migrationName: string, migrationsDir: stri
   
   try {
     const files = await fs.readdir(migrationDir);
-    const rollbackFile = files.find(file => file.endsWith('.rollback.sql'));
+    const rollbackFile = files.find(file => file.endsWith('rollback.sql'));
     
     if (rollbackFile) {
       return join(migrationDir, rollbackFile);

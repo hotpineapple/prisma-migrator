@@ -8,7 +8,7 @@ A Node.js library that extends Prisma ORM's migration functionality with automat
 - 🔍 Detects failed migrations by checking `_prisma_migrations` table
 - 🔄 Automatically executes rollback when migration fails
 - 🔒 Safety confirmation prompt before running
-- 📝 Supports any `*.rollback.sql` file in migration directories
+- 📝 Supports any `rollback.sql` file in migration directories
 - 🎯 Simple CLI tool with no configuration needed
 
 ## Installation
