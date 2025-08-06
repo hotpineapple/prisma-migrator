@@ -1,10 +1,7 @@
-import { exec } from 'child_process';
-import { promisify } from 'util';
+import { execSync } from 'child_process';
 import { PrismaClient } from '@prisma/client';
 import { MigrationResult, FailedMigration } from './types';
 import { Logger, readFile, findMigrationsDir, executeSql, getRollbackFile } from './utils';
-
-const execAsync = promisify(exec);
 
 export class PrismaMigrator {
   private logger: Logger;
@@ -25,19 +22,34 @@ export class PrismaMigrator {
     try {
       await this.initialize();
       
-      this.logger.info('Starting migration with prisma migrate dev...');
+      this.logger.info('Starting migration with prisma migrate deploy...');
       
       const migrateCommand = `npx prisma migrate deploy`;
       
       this.logger.debug(`Executing: ${migrateCommand}`);
       
-      const { stdout, stderr } = await execAsync(migrateCommand);
-      
-      if (stderr && !stderr.includes('warnings') && !stderr.includes('Generated Prisma Client')) {
-        throw new Error(`Migration failed: ${stderr}`);
+      let stdout: string;
+      try {
+        stdout = execSync(migrateCommand, { 
+          encoding: 'utf-8',
+          stdio: ['pipe', 'pipe', 'pipe']
+        });
+      } catch (execError: any) {
+        this.logger.error('Migration command failed');
+        
+        const errorOutput = execError.stderr ? execError.stderr.toString() : execError.message;
+        
+        const rollbackResult = await this.attemptRollbackFromError(errorOutput);
+        
+        return {
+          success: false,
+          error: errorOutput,
+          rolledBack: rollbackResult.success,
+          rollbackError: rollbackResult.error
+        };
       }
       
-      this.logger.success('Prisma migrate dev completed');
+      this.logger.success('Prisma migrate deploy completed');
       this.logger.debug(`Migration output: ${stdout}`);
       
       const failedMigration = await this.checkForFailedMigrations();
@@ -61,11 +73,15 @@ export class PrismaMigrator {
       
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      this.logger.error(`Migration process failed: ${errorMessage}`);
+      this.logger.error(`Migration - rollback process failed`);
+      
+      const rollbackResult = await this.attemptRollbackFromError(errorMessage);
       
       return {
         success: false,
-        error: errorMessage
+        error: errorMessage,
+        rolledBack: rollbackResult.success,
+        rollbackError: rollbackResult.error
       };
     }
   }
@@ -118,6 +134,50 @@ export class PrismaMigrator {
       const errorMessage = error instanceof Error ? error.message : String(error);
       this.logger.error(`Rollback failed: ${errorMessage}`);
       return { success: false, error: errorMessage };
+    }
+  }
+
+  private async attemptRollbackFromError(errorOutput: string): Promise<{ success: boolean; error?: string }> {
+    try {
+      this.logger.warn('Attempting rollback from error output...');
+      
+      const migrationDirs = await this.findRecentMigrationDirs();
+      
+      for (const migrationName of migrationDirs) {
+        const rollbackFile = await getRollbackFile(migrationName, this.migrationsDir);
+        if (rollbackFile) {
+          this.logger.info(`Found rollback file for migration: ${migrationName}`);
+          
+          const rollbackSql = await readFile(rollbackFile);
+          await executeSql(rollbackSql, this.prisma, this.logger);
+          
+          this.logger.success('Rollback executed successfully');
+          return { success: true };
+        }
+      }
+      
+      this.logger.warn('No rollback files found for recent migrations');
+      return { success: false, error: 'No rollback files found' };
+      
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Rollback failed: ${errorMessage}`);
+      return { success: false, error: errorMessage };
+    }
+  }
+
+  private async findRecentMigrationDirs(): Promise<string[]> {
+    try {
+      const fs = await import('fs/promises');
+      const migrations = await fs.readdir(this.migrationsDir);
+      
+      return migrations
+        .filter(name => name.match(/^\d{14}_/))
+        .sort()
+        .reverse()
+        .slice(0, 3);
+    } catch {
+      return [];
     }
   }
 
