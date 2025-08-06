@@ -4,12 +4,13 @@ A Node.js library that extends Prisma ORM's migration functionality with automat
 
 ## Features
 
-- 🚀 Runs `prisma migrate dev` automatically  
+- 🚀 Runs `prisma migrate deploy` automatically  
 - 🔍 Detects failed migrations by checking `_prisma_migrations` table
 - 🔄 Automatically executes rollback when migration fails
 - 🔒 Safety confirmation prompt before running
 - 📝 Supports any `rollback.sql` file in migration directories
-- 🎯 Simple CLI tool with no configuration needed
+- 📁 Smart project root detection - works from any subdirectory
+- 🎯 Simple CLI tool with minimal configuration needed
 
 ## Installation
 
@@ -22,12 +23,16 @@ npm install prisma-migrator
 ### CLI Usage
 
 ```bash
+# Basic usage (works from any directory in your project)
 npx prisma-migrator
+
+# With custom migrations directory
+npx prisma-migrator --migrations-dir ./custom/migrations
 ```
 
 The tool will:
 1. Show a confirmation prompt with a random string
-2. Run `prisma migrate dev`
+2. Run `prisma migrate deploy`
 3. Check for failed migrations
 4. Execute rollback if a migration failed and `*.rollback.sql` exists
 
@@ -36,7 +41,14 @@ The tool will:
 ```typescript
 import { PrismaMigrator } from 'prisma-migrator';
 
+// Basic usage
 const migrator = new PrismaMigrator();
+const result = await migrator.migrate();
+
+// With custom options
+const migrator = new PrismaMigrator({
+  migrationsDir: './custom/migrations'
+});
 const result = await migrator.migrate();
 
 if (result.success) {
@@ -53,11 +65,22 @@ await migrator.disconnect();
 
 ## How It Works
 
-1. **Safety Check**: Prompts user to enter a random confirmation string
-2. **Migration**: Executes `npx prisma migrate deploy`
-3. **Failure Detection**: Queries `_prisma_migrations` table for entries where `finished_at IS NULL`
-4. **Rollback**: If failure detected, looks for any `*.rollback.sql` file in the failed migration directory
-5. **Execution**: Runs the rollback SQL using Prisma's raw query execution
+1. **Project Detection**: Automatically finds your project root by looking for `package.json` or `prisma/schema.prisma`
+2. **Safety Check**: Prompts user to enter a random confirmation string
+3. **Migration**: Executes `npx prisma migrate deploy` synchronously
+4. **Failure Detection**: Queries `_prisma_migrations` table for entries where `finished_at IS NULL`
+5. **Rollback**: If failure detected, looks for any `*.rollback.sql` file in the failed migration directory
+6. **Execution**: Runs the rollback SQL using Prisma's raw query execution
+
+### Path Detection Logic
+
+The library searches for migrations in this order:
+- `{projectRoot}/prisma/migrations`
+- `{projectRoot}/migrations` 
+- `{currentDir}/prisma/migrations`
+- `{currentDir}/migrations`
+- `./prisma/migrations` (relative fallback)
+- `./migrations` (relative fallback)
 
 ## Rollback File Structure
 

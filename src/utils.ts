@@ -1,5 +1,5 @@
 import { promises as fs } from 'fs';
-import { join } from 'path';
+import { join, resolve } from 'path';
 import { createInterface } from 'readline';
 import { PrismaClient } from '@prisma/client';
 
@@ -38,15 +38,48 @@ export async function readFile(filePath: string): Promise<string> {
   return await fs.readFile(filePath, 'utf-8');
 }
 
+export async function findProjectRoot(): Promise<string> {
+  let currentDir = process.cwd();
+  
+  while (currentDir !== '/') {
+    const packageJsonPath = join(currentDir, 'package.json');
+    const prismaSchemaPath = join(currentDir, 'prisma', 'schema.prisma');
+    
+    if (await fileExists(packageJsonPath) || await fileExists(prismaSchemaPath)) {
+      return currentDir;
+    }
+    
+    const parentDir = resolve(currentDir, '..');
+    if (parentDir === currentDir) break;
+    currentDir = parentDir;
+  }
+  
+  return process.cwd();
+}
+
 export async function findMigrationsDir(customDir?: string): Promise<string> {
-  const possibleLocations = customDir ? [customDir] : [
+  if (customDir) {
+    const absolutePath = resolve(customDir);
+    if (await fileExists(absolutePath)) {
+      return absolutePath;
+    }
+    throw new Error(`Custom migrations directory not found: ${customDir}`);
+  }
+
+  const projectRoot = await findProjectRoot();
+  
+  const possibleLocations = [
+    join(projectRoot, 'prisma', 'migrations'),
+    join(projectRoot, 'migrations'),
+    join(process.cwd(), 'prisma', 'migrations'),
+    join(process.cwd(), 'migrations'),
     './prisma/migrations',
     './migrations'
   ];
 
   for (const location of possibleLocations) {
     if (await fileExists(location)) {
-      return location;
+      return resolve(location);
     }
   }
 
