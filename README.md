@@ -54,7 +54,7 @@ await migrator.disconnect();
 ## How It Works
 
 1. **Safety Check**: Prompts user to enter a random confirmation string
-2. **Migration**: Executes `npx prisma migrate dev`
+2. **Migration**: Executes `npx prisma migrate deploy`
 3. **Failure Detection**: Queries `_prisma_migrations` table for entries where `finished_at IS NULL`
 4. **Rollback**: If failure detected, looks for any `*.rollback.sql` file in the failed migration directory
 5. **Execution**: Runs the rollback SQL using Prisma's raw query execution

@@ -27,7 +27,7 @@ export class PrismaMigrator {
       
       this.logger.info('Starting migration with prisma migrate dev...');
       
-      const migrateCommand = `npx prisma migrate dev`;
+      const migrateCommand = `npx prisma migrate deploy`;
       
       this.logger.debug(`Executing: ${migrateCommand}`);
       
