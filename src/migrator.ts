@@ -54,6 +54,14 @@ export class PrismaMigrator {
       this.logger.success('Prisma migrate deploy completed');
       this.logger.debug(`Migration output: ${stdout}`);
       
+      return {
+        success: true
+      };
+      
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Migration process failed: ${errorMessage}`);
+      
       const failedMigration = await this.checkForFailedMigrations();
       
       if (failedMigration) {
@@ -63,27 +71,15 @@ export class PrismaMigrator {
         
         return {
           success: false,
-          error: failedMigration.logs || 'Migration failed',
+          error: failedMigration.logs || errorMessage,
           rolledBack: rollbackResult.success,
           rollbackError: rollbackResult.error
         };
       }
       
       return {
-        success: true
-      };
-      
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      this.logger.error(`Migration - rollback process failed`);
-      
-      const rollbackResult = await this.attemptRollbackFromError(errorMessage);
-      
-      return {
         success: false,
-        error: errorMessage,
-        rolledBack: rollbackResult.success,
-        rollbackError: rollbackResult.error
+        error: errorMessage
       };
     }
   }
