@@ -1,9 +1,4 @@
 {
-  "author": "Jihye Choi <brandnew.cheese@gmail.com>",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/hotpineapple/prisma-migrator.git"
-  },
   "name": "prisma-migrator",
   "version": "1.0.0",
   "description": "A Node.js library that extends Prisma ORM's migration with automatic rollback capabilities when migrations fail",
@@ -29,16 +24,16 @@
     "prisma-migration",
     "auto-rollback"
   ],
-  "author": "Your Name <your.email@example.com>",
+  "author": "Jihye Choi <brandnew.cheese@gmail.com>",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/prisma-migrator.git"
+    "url": "https://github.com/hotpineapple/prisma-migrator.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/prisma-migrator/issues"
+    "url": "https://github.com/hotpineapple/prisma-migrator/issues"
   },
-  "homepage": "https://github.com/yourusername/prisma-migrator#readme",
+  "homepage": "https://github.com/hotpineapple/prisma-migrator#readme",
   "peerDependencies": {
     "prisma": "^5.0.0",
     "@prisma/client": "^5.0.0"

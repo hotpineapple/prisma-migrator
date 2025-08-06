@@ -121,4 +121,4 @@ MIT
 
 ## Support
 
-If you encounter any issues, please file them on the [GitHub issues page](https://github.com/yourusername/prisma-migrator/issues).
+If you encounter any issues, please file them on the [GitHub issues page](https://github.com/hotpineapple/prisma-migrator/issues).
